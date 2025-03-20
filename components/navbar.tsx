@@ -55,8 +55,6 @@ export default function Navbar() {
             </Link>
           </div>
           
-
-
           <div className="hidden md:flex space-x-4">
             {navItems.map((nav) => (
               <Link 
@@ -69,7 +67,6 @@ export default function Navbar() {
             ))}
           </div>
           
-
           <div className="md:hidden">
             <button className="md:hidden transition-transform duration-300 hover:scale-110" onClick={() => setIsOpen(!isOpen)}>
               {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -79,7 +76,6 @@ export default function Navbar() {
           </div>
         </div>
 
-
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -87,7 +83,7 @@ export default function Navbar() {
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
-              className={`md:hidden absolute top-full left-0 right-0 ${theme === "light" ? "bg-white" : "bg-zinc-950"} shadow-md overflow-hidden py-4`}
+              className={`md:hidden absolute top-full left-0 right-0 ${theme === "light" ? "bg-white" : "bg-white-950"} shadow-md overflow-hidden py-4`}
             >
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col space-y-4">
                 {navItems.map((nav) => (
@@ -98,9 +94,7 @@ export default function Navbar() {
                       {nav.name}
                   </Link>
                 ))}
-
               </div>
-              
             </motion.div>
           )
 

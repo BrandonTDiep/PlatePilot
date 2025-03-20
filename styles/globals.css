@@ -66,3 +66,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.apple-button {
+  @apply px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold transition-all duration-300 ease-in-out hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+}
