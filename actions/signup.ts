@@ -1,9 +1,10 @@
 "use server"
 
 import * as z from "zod"
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import { SignUpSchema } from "@/schemas"
 import { db } from "@/lib/db"
+import { getUserByEmail } from "@/services/user"
 
 export const signup = async(values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values)
@@ -16,11 +17,7 @@ export const signup = async(values: z.infer<typeof SignUpSchema>) => {
 
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  const existingUser = await db.user.findUnique({
-    where: {
-      email,
-    }
-  })
+  const existingUser = await getUserByEmail(email)
 
   if (existingUser) {
     return { error: "Email already in use!" }
