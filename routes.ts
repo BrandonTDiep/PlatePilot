@@ -13,6 +13,7 @@ export const publicRoutes = ["/", "/recipes"];
 export const authRoutes = [
   "/login",
   "/sign-up",
+  "/error"
 ];
 
 /**
