@@ -1,0 +1,21 @@
+Tid,Refund,Marital Status,Taxable Income,Cheat
+1,Yes,Single,153k,No
+2,Yes,Single,194k,Yes
+3,No,Married,108k,No
+4,No,Married,77k,No
+5,No,Single,217k,Yes
+6,No,Single,131k,No
+7,No,Divorced,147k,Yes
+8,No,Married,182k,No
+9,Yes,Single,193k,No
+10,Yes,Single,234k,No
+11,No,Married,158k,No
+12,Yes,Married,111k,No
+13,No,Single,62k,Yes
+14,No,Married,219k,No
+15,No,Divorced,101k,Yes
+16,No,Married,165k,No
+17,No,Married,134k,No
+18,Yes,Single,66k,Yes
+19,Yes,Married,112k,No
+20,No,Single,56k,Yes
