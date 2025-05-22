@@ -6,6 +6,20 @@ import { NewPasswordSchema } from "@/schemas"
 import { getPasswordResetToken } from "@/services/password-reset-token"
 import { getUserByEmail } from "@/services/user"
 
+/**
+ * Handles setting a new password using a reset token.
+ * 
+ * 1. Validates the reset token.
+ * 2. Ensures the new password meets schema requirements.
+ * 3. Checks if the token exists and has not expired.
+ * 4. Finds the user associated with the token's email.
+ * 5. Updates the user's password in the database (hashed).
+ * 6. Deletes the used password reset token.
+ * 
+ * @param values - The new password form data.
+ * @param token - The password reset token from the reset link.
+ * @returns An object with either a success message or an error.
+ */
 export const newPassword = async (values: z.infer<typeof NewPasswordSchema>, token?: string | null) => {
     if(!token) {
         return { error: "Missing token!" }

@@ -1,4 +1,4 @@
-
+// for npx prisma generate
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -27,7 +27,7 @@ model User {
  
   @@map("users")
 }
-
+// OAuth for GitHub and Google
 model Account {
   id                 String  @id @default(cuid())
   userId             String  @map("user_id")

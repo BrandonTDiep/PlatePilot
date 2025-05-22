@@ -23,7 +23,7 @@ export default {
 
                 if(validatedFields.success) {
                     const { email, password } = validatedFields.data
-
+                    // check if email passed in the credentials provider is connected to any user in db
                     const user = await getUserByEmail(email)
                     
                     // if user logs in with github or google

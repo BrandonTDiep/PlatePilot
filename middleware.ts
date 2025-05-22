@@ -4,7 +4,9 @@ import authConfig from "./auth.config"
 import { DEFAULT_LOGIN_REDIRECT, apiAuthPrefix, authRoutes, publicRoutes } from "./routes"
 const { auth } = NextAuth(authConfig)
 
+// in the middleware decide what to do with these routes
 export default auth((req) => {
+    // destructure the next url
     const { nextUrl } = req
     const isLoggedIn = !!req.auth
     
@@ -16,21 +18,30 @@ export default auth((req) => {
       return 
     }
 
+    // check if we are on auth route
     if(isAuthRoute) {
+      // if logged in, redirect to default("settings") page, pass nextUrl so it creates absolute url
       if (isLoggedIn) {
         return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
       }
       return 
     }
 
+    // check if not logged in and not on public route
     if (!isLoggedIn && !isPublicRoute) {
       return Response.redirect(new URL("/login", nextUrl))
     }
 
+    // allow every other route so if user on public route fallback here
     return 
 })
  
-// Optionally, don't invoke Middleware on some paths
+// Optionally, don't invoke Middleware on some paths, simply gonna be used to invoke the middleware, the auth function above. Invoke on everything excpet that regex
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Always run for API routes
+    '/(api|trpc)(.*)',
+  ],
 }

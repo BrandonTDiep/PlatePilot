@@ -8,6 +8,13 @@ import { getUserByEmail } from "@/services/user"
 import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
 
+/**
+ * Handles user registration by validating input, checking for existing users,
+ * hashing the password, creating the user in the database, and sending a verification email.
+ *
+ * @param values - The input object containing name, email, and password.
+ * @returns An object indicating success or an appropriate error message.
+ */
 export const signup = async(values: z.infer<typeof SignUpSchema>) => {
   const validatedFields = SignUpSchema.safeParse(values)
 
@@ -32,7 +39,7 @@ export const signup = async(values: z.infer<typeof SignUpSchema>) => {
       password: hashedPassword
     }
   })
-
+  // generate verification token
   const verificationToken = await generateVerificationToken(email)
   
   await sendVerificationEmail(verificationToken.email, verificationToken.token)

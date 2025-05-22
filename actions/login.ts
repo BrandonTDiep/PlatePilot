@@ -9,7 +9,20 @@ import { generateVerificationToken } from "@/lib/tokens"
 import { sendVerificationEmail } from "@/lib/mail"
 import { getUserByEmail } from "@/services/user"
 
+/**
+ * Handles user login with email and password.
+ * 
+ * 1. Validates login fields against the schema.
+ * 2. Ensures the user exists and has a verified email.
+ * 3. If email is not verified, resend the verification token.
+ * 4. Attempts to log in using the credentials provider.
+ * 5. Handles errors such as invalid credentials or other Auth errors.
+ * 
+ * @param values - Login form input containing email and password.
+ * @returns An object with a success message, an error, or triggers a redirect.
+ */
 export const login = async(values: z.infer<typeof LoginSchema>) => {
+  // client-side validation can be bypassed so add this to server, so user can't tamper with code
   const validatedFields = LoginSchema.safeParse(values)
 
   if (!validatedFields.success) {
@@ -24,7 +37,7 @@ export const login = async(values: z.infer<typeof LoginSchema>) => {
     return { error: "Email does not exist!" }
   }
 
-  // user exists but not email verified
+  // user created/exists but not email verified yet, emailVerified should have a date
   if(!existingUser.emailVerified){
     const verificationToken = await generateVerificationToken(existingUser.email)
 
@@ -52,7 +65,7 @@ export const login = async(values: z.infer<typeof LoginSchema>) => {
           return { error: "Something went wrong!" }
       }
     }
-
+    // add it so we redirect
     throw error 
   }
 

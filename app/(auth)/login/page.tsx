@@ -18,12 +18,13 @@ import Link from "next/link"
 
 const Login = () => {
   const searchParams = useSearchParams()
+  // oauth error
   const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : ""
   const [error, setError] = useState<string | undefined>("")
   const [success, setSuccess] = useState<string | undefined>("")
   const [isPending, startTransition] = useTransition()
 
-
+  // define our form with a type
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -35,7 +36,8 @@ const Login = () => {
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError("")
     setSuccess("")
-
+    // lets the app stay interactive while waiting for non-urgent async updates to complete
+    // lets us track the pending state to disable inputs
     startTransition(() => {
       login(values).then((data) => {
         setError(data.error)
@@ -73,6 +75,7 @@ const Login = () => {
                       type="email"
                     />
                   </FormControl>
+                  {/* error message */}
                   <FormMessage />
                 </FormItem>
               )}

@@ -5,6 +5,14 @@ import { getUserByEmail } from "@/services/user"
 import { sendPasswordResetEmail } from "@/lib/mail"
 import { generatePasswordResetToken } from "@/lib/tokens"
 
+/**
+ * Handles password reset requests by validating input,
+ * checking if the user exists, generating a reset token,
+ * and sending a password reset email.
+ *
+ * @param values - The input object containing the user's email.
+ * @returns An object indicating success or an appropriate error message.
+ */
 export const reset = async (values: z.infer<typeof ResetSchema>) => {
     const validatedFields = ResetSchema.safeParse(values)
 
