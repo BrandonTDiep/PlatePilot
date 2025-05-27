@@ -19,7 +19,7 @@ declare module "next-auth" {
 
 
 export const { 
-  handlers: { GET, POST }, 
+  handlers: { GET, POST },
   auth, 
   signIn, 
   signOut 
