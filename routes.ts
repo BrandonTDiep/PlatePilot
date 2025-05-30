@@ -6,7 +6,8 @@
 export const publicRoutes = [
   "/", 
   "/recipes",
-  "/new-verification"
+  "/new-verification",
+  "/api/openai",
 ];
 
 /**
