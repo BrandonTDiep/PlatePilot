@@ -5,6 +5,7 @@ import authConfig from "./auth.config"
 import { getUserById } from "./services/user"
 import { UserRole } from "@prisma/client"
 
+
 // helps avoid .role type error
 export type ExtendedUser = DefaultSession["user"] & {
   role: UserRole

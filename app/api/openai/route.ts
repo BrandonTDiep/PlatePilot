@@ -1,5 +1,6 @@
 import OpenAI from "openai"
 import { NextResponse } from "next/server";
+import { v4 as uuidv4 } from "uuid";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_KEY,
@@ -32,7 +33,13 @@ export async function POST(req: Request) {
 
         const recipe = JSON.parse(recipeCreated)
 
-        return NextResponse.json({ recipe }, { status: 200 })
+        // add the id
+        const finalRecipe = {
+            ...recipe,
+            id: uuidv4()
+        }
+
+        return NextResponse.json({ recipe: finalRecipe }, { status: 200 })
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: "Failed to fetch recipes." }, { status: 500 })

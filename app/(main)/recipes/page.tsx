@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { RotateCcw, ArrowLeft, Heart, Clock, Users, ChefHat } from "lucide-react"
 import { useState } from "react"
+import { useSession } from "next-auth/react" // useSession() React Hook in the NextAuth.js client is the easiest way to check if someone is signed in
 
 interface Ingredient {
   name: string,
@@ -14,6 +15,7 @@ interface Ingredient {
 }
 
 interface Recipe {
+  id: string,
   name: string, 
   description: string,
   prep_time: number,
@@ -21,10 +23,11 @@ interface Recipe {
   total_time: number, 
   servings: string, 
   ingredients: Ingredient[], 
-  directions: []
+  directions: string[]
 }
 
 const Recipes = () => {
+  const { data: session, status } = useSession()
 
   const [ingredients, setIngredients] = useState("")
   const [recipe, setRecipe] = useState<Recipe | null>(null)
@@ -37,8 +40,48 @@ const Recipes = () => {
     setIsFlipped(!isFlipped)
   }
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async(e: React.MouseEvent) => {
     e.stopPropagation() // prevent card flip when trying to save
+
+    if (!session || !session.user.id) {
+      alert('You must be logged in to save a recipe.');
+      return;
+    }
+
+    if(!recipe) {
+      return
+    }
+
+    try {
+      const res = await fetch('/api/recipes', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json',},
+        body: JSON.stringify({
+          id: recipe.id,
+          name: recipe.name,
+          description: recipe.description,
+          prep_time: recipe.prep_time,
+          cook_time: recipe.cook_time,
+          total_time: recipe.total_time,
+          servings: recipe.servings,
+          ingredients: recipe.ingredients,
+          directions: recipe.directions,
+        }),
+      });
+
+      const data = await res.json()
+
+      if (data.success) {
+        setIsSaved(true)
+      } else {
+        throw new Error(data.error || 'Failed to save recipe')
+      }  
+      
+    } catch (error) {
+      alert('Failed to save recipe. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
 

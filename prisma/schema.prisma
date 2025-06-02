@@ -24,6 +24,7 @@ model User {
   password      String?
   role          UserRole @default(USER)
   accounts      Account[]
+  recipes       Recipe[]
  
   @@map("users")
 }
@@ -66,4 +67,22 @@ model PasswordResetToken {
   @@unique([email, token])
 }
 
+model Recipe {
+  id String @id 
+  name String
+  description String
+  prep_time Int 
+  cook_time Int 
+  total_time Int
+  servings String
+  ingredients Json
+  directions String[]
+  userId String  @map("user_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("recipes")
+}
 
