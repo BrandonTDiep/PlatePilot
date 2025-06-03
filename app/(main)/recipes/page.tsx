@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { RotateCcw, ArrowLeft, Heart, Clock, Users, ChefHat } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react" // useSession() React Hook in the NextAuth.js client is the easiest way to check if someone is signed in
 
 interface Ingredient {
@@ -36,16 +36,52 @@ const Recipes = () => {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isSaved, setIsSaved] = useState(false)
 
+  useEffect(() => {
+    if (recipe && recipe.id) {
+      checkRecipeSaved(recipe.id);
+    }
+
+  }, [recipe])
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped)
+  }
+
+  const checkRecipeSaved = async(recipeId: string) => {
+    if (!session || !session.user.id || !recipeId) {
+      return
+    }
+
+    try {
+      const res = await fetch('/api/recipes/check', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json',},
+          body: JSON.stringify({ recipeId: recipeId }),
+      })
+
+      const data = await res.json()
+
+      if (data.exists) {
+        setIsSaved(true)
+      } 
+      else {
+        setIsSaved(false)
+      }
+
+      if (data.error) {
+        console.log(data.error)
+      }
+    } catch (error) {
+        console.log(error instanceof Error ? error.message : 'An error occurred')
+    }
   }
 
   const handleSave = async(e: React.MouseEvent) => {
     e.stopPropagation() // prevent card flip when trying to save
 
     if (!session || !session.user.id) {
-      alert('You must be logged in to save a recipe.');
-      return;
+      alert('You must be logged in to save a recipe.')
+      return
     }
 
     if(!recipe) {
@@ -53,30 +89,48 @@ const Recipes = () => {
     }
 
     try {
-      const res = await fetch('/api/recipes', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json',},
-        body: JSON.stringify({
-          id: recipe.id,
-          name: recipe.name,
-          description: recipe.description,
-          prep_time: recipe.prep_time,
-          cook_time: recipe.cook_time,
-          total_time: recipe.total_time,
-          servings: recipe.servings,
-          ingredients: recipe.ingredients,
-          directions: recipe.directions,
-        }),
-      });
+      if(isSaved) {
+        const res = await fetch('/api/recipes', {
+          method: 'DELETE',
+          headers: {'Content-Type': 'application/json',},
+          body: JSON.stringify({ recipeId: recipe.id }),
+        })
 
-      const data = await res.json()
+        const data = await res.json()
 
-      if (data.success) {
-        setIsSaved(true)
-      } else {
-        throw new Error(data.error || 'Failed to save recipe')
-      }  
-      
+        if (data.success) {
+          setIsSaved(false)
+        } 
+        else {
+          throw new Error(data.error || 'Failed to delete recipe')
+        }
+      }
+      else {
+        const res = await fetch('/api/recipes', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json',},
+          body: JSON.stringify({
+            id: recipe.id,
+            name: recipe.name,
+            description: recipe.description,
+            prep_time: recipe.prep_time,
+            cook_time: recipe.cook_time,
+            total_time: recipe.total_time,
+            servings: recipe.servings,
+            ingredients: recipe.ingredients,
+            directions: recipe.directions,
+          }),
+        })
+
+        const data = await res.json()
+
+        if (data.success) {
+          setIsSaved(true)
+        } 
+        else {
+          throw new Error(data.error || 'Failed to save recipe')
+        }  
+      }
     } catch (error) {
       alert('Failed to save recipe. Please try again.')
     } finally {
@@ -138,6 +192,7 @@ const Recipes = () => {
               <Card className="absolute inset-0 shadow-md overflow-hidden backface-hidden w-full h-full">
                 <div className="absolute top-3 right-3 z-10">
                   <Button
+                    
                     size="icon"
                     variant="secondary"
                     className={`w-8 h-8 rounded-full shadow-md transition-colors ${
@@ -156,7 +211,7 @@ const Recipes = () => {
                   <div className="flex gap-x-4">
                     <CardDescription className="flex items-center gap-1">
                       <Clock className="w-4 h-4"/> 
-                      <span>Total Time: {recipe.total_time}</span>
+                      <span>Total Time: {recipe.total_time} min</span>
                     </CardDescription>
                     <CardDescription className="flex items-center gap-1">
                       <Users className="w-4 h-4"/> 
@@ -197,11 +252,11 @@ const Recipes = () => {
                   <div className="flex gap-x-4">
                     <CardDescription className="flex items-center gap-1">
                       <Clock className="w-4 h-4"/> 
-                      <span>Prep: {recipe.prep_time}</span>
+                      <span>Prep: {recipe.prep_time} min</span>
                     </CardDescription>
                     <CardDescription className="flex items-center gap-1">
                       <ChefHat className="w-4 h-4"/> 
-                      <span>Cook: {recipe.cook_time}</span>
+                      <span>Cook: {recipe.cook_time} min</span>
                     </CardDescription>
                   </div>
          

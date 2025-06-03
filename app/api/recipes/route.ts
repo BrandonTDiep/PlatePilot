@@ -57,3 +57,57 @@ export async function POST(req: Request) {
   }
 }
 
+export async function DELETE(req: Request) {
+  try {
+    const session = await auth()
+
+    if(!session || !session.user?.id) {
+        return new Response(JSON.stringify({ error: 'Unauthorized: Please log in' }), {
+            status: 401,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    }
+
+    const { recipeId } = await req.json()
+
+    if (!recipeId) {
+      return new Response(JSON.stringify({ error: 'Recipe ID is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const recipe = await db.recipe.findFirst({
+      where: {
+        id: recipeId,
+        userId: session.user.id
+      }
+    })
+
+    if (!recipe) {
+      return new Response(JSON.stringify({ error: 'Recipe not found or not authorized' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    await db.recipe.delete({
+      where: {
+        id: recipeId
+      }
+    })
+
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+  } catch (error) {
+    console.log(error)
+    return new Response(JSON.stringify({ error: 'Failed to delete recipe' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+    
+  }
+}
