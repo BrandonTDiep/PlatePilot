@@ -29,7 +29,7 @@ export async function POST(req: Request) {
         })
 
 
-        // '!!' convert valuet to boolean equivalent
+        // '!!' convert value to boolean equivalent
         return new Response(JSON.stringify({ exists: !!recipe, recipeId: recipe?.id }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
