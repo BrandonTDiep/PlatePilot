@@ -1,6 +1,6 @@
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
-
+// not needed anymore but good to check if recipe is there
 export async function POST(req: Request) {
     try {
         const session = await auth()
