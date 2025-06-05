@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react" // useSession() React Hook in the NextAuth.js client is the easiest way to check if someone is signed in
 import RecipeCard from "@/components/recipes/recipe-card"
@@ -102,17 +103,24 @@ const Recipes = () => {
 
   return (
     <div className='container mx-auto py-8'>
-      <form id="ingredient" onSubmit={handleSubmit} className="mt-20 flex w-full max-w-sm items-center space-x-2 mx-auto">
-        <Input 
-          placeholder="Ingredients" 
-          value={ingredients}
-          onChange={(e) => setIngredients(e.target.value)}
-        />
-        <Button type="submit">Generate</Button>
+      <form id="ingredient-form" onSubmit={handleSubmit} className="mt-16 w-full max-w-sm items-center space-x-2 mx-auto">
+        <div className="space-y-2">
+          <Label htmlFor="ingredient">Enter Ingredients</Label>
+          <div className="flex gap-2">
+            <Input 
+              id="ingredient"
+              placeholder="Ingredients" 
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+            />
+
+            <Button type="submit">Generate</Button>
+          </div>
+        </div>
       </form>
       
       {recipe ? 
-          <div className='w-full max-w-sm mx-auto justify-center mt-14'>
+          <div className='w-full max-w-sm mx-auto justify-center mt-12'>
             <RecipeCard 
               recipe={recipe} 
               isSaved={isSaved}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { Loader2 } from "lucide-react"
 import RecipeCard from "@/components/recipes/recipe-card"
 
 interface Recipe {
@@ -31,7 +32,7 @@ export default function SavedRecipes() {
 
   const getSavedRecipes = async() => {
     try {
-      const res = await fetch('/api/recipes').
+      await fetch('/api/recipes').
         then(res => res.json()). 
         then(data => {
         setSavedRecipes(data.recipes || [])
@@ -61,7 +62,12 @@ export default function SavedRecipes() {
   }
 
   if (loading) {
-    return <p className="text-center mt-20">Loading...</p>
+    return (
+      <div className="min-h-[calc(100vh-4.1rem)] flex justify-center items-center overflow-hidden">
+        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground"/>
+      </div>
+    )
+    
   }
 
   return (
@@ -71,15 +77,18 @@ export default function SavedRecipes() {
       {savedRecipes.length === 0 ? (
         <p className="text-center">No saved recipes yet.</p>
       ) : (
-        <div className="grid grid-cols-4 gap-8 justify-items-center">
-          {savedRecipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              isSaved={true} // always true in Saved page
-              onSaveToggle={handleToggleSave}
-            />
-          ))}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-8">
+            {savedRecipes.map((recipe) => (
+              <div key={recipe.id} className='w-full max-w-sm mx-auto'>
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  isSaved={true} // always true in Saved page
+                  onSaveToggle={handleToggleSave}
+                />
+              </div>
+            ))}
         </div>
       )}
     </div>
