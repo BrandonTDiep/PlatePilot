@@ -7,24 +7,9 @@ import { Badge } from "@/components/ui/badge"
 import { RotateCcw, ArrowLeft, Heart, Clock, Users, ChefHat } from "lucide-react"
 import { useState } from "react"
 import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
+import type { RecipeCardProps } from "@/types/recipe"
 
-interface Recipe {
-  id: string
-  name: string
-  description: string
-  prep_time: number
-  cook_time: number
-  total_time: number
-  servings: string
-  ingredients: { name: string; amount: string }[]
-  directions: string[]
-}
-
-interface RecipeCardProps {
-  recipe: Recipe
-  isSaved: boolean
-  onSaveToggle: (id: string) => void
-}
 
 export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCardProps) {
   const { data: session } = useSession()
@@ -35,8 +20,7 @@ export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCard
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     if (!session?.user?.id) {
-      alert("You must be logged in to save/unsave.")
-      return
+      redirect("/login") 
     }
     onSaveToggle(recipe.id)
   }

@@ -5,9 +5,11 @@
  */
 export const publicRoutes = [
   "/", 
-  "/recipes",
+  "/generate",
+  "/saved",
   "/new-verification",
   "/api/openai",
+  "/api/recipes"
 ];
 
 /**

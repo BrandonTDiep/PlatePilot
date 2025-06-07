@@ -1,9 +1,7 @@
-'use client'
-
-import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react"
-import { Loader2 } from "lucide-react"
-import RecipeCard from "@/components/recipes/recipe-card"
+import { auth } from "@/auth"
+import SavedRecipesClient from "@/components/recipes/SavedRecipesClient"
+import { redirect } from "next/navigation"
+import { db } from "@/lib/db"
 
 interface Recipe {
   id: string
@@ -17,80 +15,54 @@ interface Recipe {
   directions: string[]
 }
 
-export default function SavedRecipes() {
-  const { data: session } = useSession()
-  const [savedRecipes, setSavedRecipes] = useState<Recipe[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!session?.user?.id) {
-      return
-    }
-
-    getSavedRecipes()
-  }, [session])
-
-  const getSavedRecipes = async() => {
-    try {
-      await fetch('/api/recipes').
-        then(res => res.json()). 
-        then(data => {
-        setSavedRecipes(data.recipes || [])
-      })
-    } catch (error) {
-        console.log(error instanceof Error ? error.message : 'An error occurred')
-    }
-    finally{
-      setLoading(false)
-    }
-  }
-
-  const handleToggleSave = async (recipeId: string) => {
-    try {
-      const res = await fetch('/api/recipes', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recipeId }),
-      })
-      const data = await res.json()
-      if (data.success) {
-        setSavedRecipes(prev => prev.filter(r => r.id !== recipeId))
+const getSavedRecipes = async (userId : string) => {
+  const recipes = await db.recipe.findMany({
+      where: {
+        userId:  userId 
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
-    } catch {
-      alert("Failed to unsave. Try again.")
+  })
+
+  // 3) Transform each record into exactly the shape our Client Component expects
+  const savedRecipes: Recipe[] = recipes.map((r) => {
+    // r.ingredients is typed as JsonValue by Prisma. We need to assert it’s our array shape.
+    // If your data is stored correctly, this cast will work:
+    const parsedIngredients = r.ingredients as { name: string; amount: string }[];
+
+    // r.directions should already be a string[], but Prisma types it as JsonValue too,
+    // so we cast it here:
+    const parsedDirections = r.directions as string[];
+
+    return {
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      prep_time: r.prep_time,
+      cook_time: r.cook_time,
+      total_time: r.total_time,
+      servings: r.servings,
+      ingredients: parsedIngredients,
+      directions: parsedDirections,
+    };
+  });
+  return savedRecipes
+}
+
+export default async function SavedRecipes() {
+  try {
+    const session = await auth()
+
+    if(!session || !session.user?.id) {
+      redirect("/login")
     }
+
+    const userRecipes = await getSavedRecipes(session.user.id)
+
+    return <SavedRecipesClient recipes={userRecipes} />
+
+  } catch (error) {
+    console.log(error)
   }
-
-  if (loading) {
-    return (
-      <div className="min-h-[calc(100vh-4.1rem)] flex justify-center items-center overflow-hidden">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground"/>
-      </div>
-    )
-    
-  }
-
-  return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold text-center mb-10">Your Saved Recipes</h1>
-
-      {savedRecipes.length === 0 ? (
-        <p className="text-center">No saved recipes yet.</p>
-      ) : (
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 p-8">
-            {savedRecipes.map((recipe) => (
-              <div key={recipe.id} className='w-full max-w-sm mx-auto'>
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  isSaved={true} // always true in Saved page
-                  onSaveToggle={handleToggleSave}
-                />
-              </div>
-            ))}
-        </div>
-      )}
-    </div>
-  )
 }

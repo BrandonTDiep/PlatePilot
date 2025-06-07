@@ -92,28 +92,29 @@ export async function DELETE(req: Request) {
 }
 
 
-export async function GET(req: Request) {
-  try {
-    const session = await auth()
+// export async function GET(req: Request) {
+//   try {
+//     const session = await auth()
 
-    if(!session || !session.user?.id) {
-      return NextResponse.json({ error: "Unauthorized: Please log in" }, { status: 401 })
-    }
+//     if(!session || !session.user?.id) {
+//       return NextResponse.json({ error: "Unauthorized: Please log in" }, { status: 401 })
+//     }
 
-    const userRecipes = await db.recipe.findMany({
-      where: {
-        userId: session.user.id
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    })
+//     const userRecipes = await db.recipe.findMany({
+//       where: {
+//         userId: session.user.id
+//       },
+//       orderBy: {
+//         createdAt: 'desc'
+//       }
+//     })
+//     console.log(userRecipes)
 
-    return NextResponse.json({ success: true, recipes: userRecipes })
+//     return NextResponse.json({ success: true, recipes: userRecipes })
 
 
-  } catch (error) {
-    console.log(error)
-    return NextResponse.json({ error: "Failed to fetch recipes" }, { status: 500 })
-  }
-}
+//   } catch (error) {
+//     console.log(error)
+//     return NextResponse.json({ error: "Failed to fetch recipes" }, { status: 500 })
+//   }
+// }

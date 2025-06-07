@@ -3,8 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useEffect, useState } from "react"
-import { useSession } from "next-auth/react" // useSession() React Hook in the NextAuth.js client is the easiest way to check if someone is signed in
+import { useState } from "react"
 import RecipeCard from "@/components/recipes/recipe-card"
 
 
@@ -21,7 +20,6 @@ interface Recipe {
 }
 
 const Recipes = () => {
-  const { data: session } = useSession()
   const [ingredients, setIngredients] = useState("")
   const [recipe, setRecipe] = useState<Recipe | null>(null)
   const [loading, setLoading] = useState(false)
@@ -29,10 +27,6 @@ const Recipes = () => {
   const [isSaved, setIsSaved] = useState(false)
 
   const handleToggleSave = async(recipeId: string) => {
-    if (!session?.user?.id) {
-      alert('You must be logged in to save a recipe.')
-      return
-    }
 
     try {
         const res = await fetch('/api/recipes', {
