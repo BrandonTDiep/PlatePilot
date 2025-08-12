@@ -51,18 +51,17 @@ const getSavedRecipes = async (userId : string) => {
 }
 
 export default async function SavedRecipes() {
+  const session = await auth();
+
+  if (!session || !session.user?.id) {
+    redirect('/login');
+  }
+
   try {
-    const session = await auth()
+    const userRecipes = await getSavedRecipes(session.user.id);
 
-    if(!session || !session.user?.id) {
-      redirect("/login")
-    }
-
-    const userRecipes = await getSavedRecipes(session.user.id)
-
-    return <SavedRecipesClient recipes={userRecipes} />
-
+    return <SavedRecipesClient recipes={userRecipes} />;
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }

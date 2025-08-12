@@ -6,20 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { RotateCcw, ArrowLeft, Heart, Clock, Users, ChefHat } from "lucide-react"
 import { useState } from "react"
-import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
+import { useCurrentUser } from "@/hooks/use-current-user"
 import type { RecipeCardProps } from "@/types/recipe"
 
 
 export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCardProps) {
-  const { data: session } = useSession()
+  const { user } = useCurrentUser()
+
   const [isFlipped, setIsFlipped] = useState(false)
 
   const handleFlip = () => setIsFlipped(!isFlipped)
 
   const handleSaveClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!session?.user?.id) {
+    if (!user?.id) {
       redirect("/login") 
     }
     onSaveToggle(recipe.id)
