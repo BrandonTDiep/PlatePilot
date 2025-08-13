@@ -1,22 +1,26 @@
 "use client";
 
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { useSession } from "next-auth/react";
 import { logout } from "@/actions/logout";
+
 const Settings = () => {
-    const user = useCurrentUser();
+  const { data: session, status } = useSession({ required: true });
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
-    const onClick = () => {
-      logout();
-    }
+  const onClick = () => {
+    logout();
+  }
 
-    return (
-        <div>
-          {JSON.stringify(user)}
-          <button onClick={onClick} type="submit">
-            Sign Out
-          </button>
-        </div>
-    )
+  return (
+    <div>
+      {JSON.stringify(session.user)}
+      <button onClick={onClick} type="submit">
+        Sign Out
+      </button>
+    </div>
+  )
 }
 
 export default Settings

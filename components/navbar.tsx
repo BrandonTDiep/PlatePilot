@@ -5,19 +5,20 @@ import { Menu, X } from 'lucide-react'
 import Link from "next/link"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
+import { useCurrentUser } from "@/hooks/use-current-user"
+import { UserButton } from "./auth/user-button"
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { theme } = useTheme()
-
+  const { user } = useCurrentUser();
 
   const navItems = [
     { name: 'Home', href: '/' },
     { name: 'Generate Recipes', href: '/generate' },
     { name: 'Saved Recipes', href: '/saved' },
-    { name: 'Login', href: '/login'}
+    !user ? { name: 'Login', href: '/login'} : { name: 'User', href: '' },
   ]
-
 
   return (
     <motion.header
@@ -25,6 +26,7 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
+      viewport={{ once: true }}
     >
       <nav className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}>
         <div className="flex items-center justify-between h-16">
@@ -34,15 +36,19 @@ export default function Navbar() {
             </Link>
           </div>
           
-          <div className="hidden md:flex space-x-4">
+          <div className="hidden md:flex  items-center space-x-4">
             {navItems.map((nav) => (
-              <Link 
-                href={nav.href}
-                key={nav.name}
-                className="hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium" 
-              >
+              nav.name === "User" ? (
+                <UserButton key={nav.name} />
+              ) : (
+                <Link
+                  href={nav.href} 
+                  key={nav.name}
+                  className="hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium"
+                >
                   {nav.name}
-              </Link>
+                </Link>
+              )
             ))}
           </div>
           
@@ -66,12 +72,17 @@ export default function Navbar() {
             >
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col space-y-4">
                 {navItems.map((nav) => (
-                  <Link 
-                    href={nav.href}
-                    key={nav.name}
-                  >
+                  nav.name === "User" ? (
+                    <UserButton key={nav.name} />
+                  ) : (
+                    <Link
+                      href={nav.href} 
+                      key={nav.name}
+                      className="hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium"
+                    >
                       {nav.name}
-                  </Link>
+                    </Link>
+                  )
                 ))}
               </div>
             </motion.div>

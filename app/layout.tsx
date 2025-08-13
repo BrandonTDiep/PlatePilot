@@ -17,7 +17,6 @@ export default async function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
 
   const session = await auth();
-  console.log("Session in RootLayout:", session);
 
   return (
       <html lang="en" className={inter.className} suppressHydrationWarning>
