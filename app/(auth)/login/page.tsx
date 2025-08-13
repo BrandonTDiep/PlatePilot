@@ -1,74 +1,79 @@
-"use client"
+'use client';
 
-import * as z from "zod"
-import { useState, useTransition } from "react"
-import { useForm } from 'react-hook-form'
-import { zodResolver } from "@hookform/resolvers/zod"
-import { LoginSchema } from "@/schemas"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import CardWrapper from '@/components/auth/card-wrapper'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import FormError from "@/components/form-error"
-import FormSuccess from "@/components/form-success"
-import { login } from "@/actions/login"
-import { useSearchParams } from "next/navigation"
-import Link from "next/link"
-
+import * as z from 'zod';
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { LoginSchema } from '@/schemas';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import CardWrapper from '@/components/auth/card-wrapper';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import FormError from '@/components/form-error';
+import FormSuccess from '@/components/form-success';
+import { login } from '@/actions/login';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 
 const Login = () => {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
   // oauth error
-  const urlError = searchParams.get("error") === "OAuthAccountNotLinked" ? "Email already in use with different provider!" : ""
-  const [error, setError] = useState<string | undefined>("")
-  const [success, setSuccess] = useState<string | undefined>("")
-  const [isPending, startTransition] = useTransition()
+  const urlError =
+    searchParams.get('error') === 'OAuthAccountNotLinked'
+      ? 'Email already in use with different provider!'
+      : '';
+  const [error, setError] = useState<string | undefined>('');
+  const [success, setSuccess] = useState<string | undefined>('');
+  const [isPending, startTransition] = useTransition();
 
   // define our form with a type
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
-      email: "",
-      password: ""
-    }
-  })
+      email: '',
+      password: '',
+    },
+  });
 
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    setError("")
-    setSuccess("")
+    setError('');
+    setSuccess('');
     // lets the app stay interactive while waiting for non-urgent async updates to complete
     // lets us track the pending state to disable inputs
     startTransition(() => {
       login(values).then((data) => {
-        setError(data.error)
-        setSuccess(data.success)
-      })
-    })
-  }
-  
+        setError(data.error);
+        setSuccess(data.success);
+      });
+    });
+  };
 
   return (
     <CardWrapper
-      title = "Welcome back"
+      title="Welcome back"
       headerLabel="Sign in to your account"
       backButtonLabel="Don't have an account?"
-      backButtonHref='/sign-up'
+      backButtonHref="/sign-up"
       showSocial
     >
       <Form {...form}>
-        <form 
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-4">
-            <FormField 
+            <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
+                    <Input
                       {...field}
                       disabled={isPending}
                       placeholder="you@example.com"
@@ -81,7 +86,7 @@ const Login = () => {
               )}
             />
 
-            <FormField 
+            <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
@@ -89,12 +94,13 @@ const Login = () => {
                   <div className="flex justify-between items-center">
                     <FormLabel>Password</FormLabel>
                     <Button size="sm" variant="link" asChild>
-                      <Link href="/reset" className="px-0">Forgot Password?</Link>
+                      <Link href="/reset" className="px-0">
+                        Forgot Password?
+                      </Link>
                     </Button>
-
                   </div>
                   <FormControl>
-                    <Input 
+                    <Input
                       {...field}
                       disabled={isPending}
                       placeholder="●●●●●●●●"
@@ -110,19 +116,13 @@ const Login = () => {
           <FormError message={error || urlError} />
           <FormSuccess message={success} />
 
-          <Button 
-            disabled={isPending}
-            type="submit" 
-            className="w-full"
-          >
+          <Button disabled={isPending} type="submit" className="w-full">
             Login
           </Button>
-
         </form>
-
       </Form>
     </CardWrapper>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

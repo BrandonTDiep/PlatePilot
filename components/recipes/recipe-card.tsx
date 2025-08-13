@@ -1,35 +1,51 @@
-'use client'
+'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { RotateCcw, ArrowLeft, Heart, Clock, Users, ChefHat } from "lucide-react"
-import { useState } from "react"
-import { redirect } from "next/navigation"
-import { useCurrentUser } from "@/hooks/use-current-user"
-import type { RecipeCardProps } from "@/types/recipe"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  RotateCcw,
+  ArrowLeft,
+  Heart,
+  Clock,
+  Users,
+  ChefHat,
+} from 'lucide-react';
+import { useState } from 'react';
+import { redirect } from 'next/navigation';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import type { RecipeCardProps } from '@/types/recipe';
 
+export default function RecipeCard({
+  recipe,
+  isSaved,
+  onSaveToggle,
+}: RecipeCardProps) {
+  const { user } = useCurrentUser();
 
-export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCardProps) {
-  const { user } = useCurrentUser()
+  const [isFlipped, setIsFlipped] = useState(false);
 
-  const [isFlipped, setIsFlipped] = useState(false)
-
-  const handleFlip = () => setIsFlipped(!isFlipped)
+  const handleFlip = () => setIsFlipped(!isFlipped);
 
   const handleSaveClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (!user?.id) {
-      redirect("/login") 
+      redirect('/login');
     }
-    onSaveToggle(recipe.id)
-  }
+    onSaveToggle(recipe.id);
+  };
 
   return (
     <div
       className={`relative w-full h-[600px] transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
-        isFlipped ? "rotate-y-180" : ""
+        isFlipped ? 'rotate-y-180' : ''
       }`}
       onClick={handleFlip}
     >
@@ -40,17 +56,21 @@ export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCard
             size="icon"
             variant="secondary"
             className={`w-8 h-8 rounded-full shadow-md transition-colors ${
-              isSaved ? "bg-red-100 hover:bg-red-200 text-red-600" : "bg-white/90 hover:bg-white text-gray-600"
+              isSaved
+                ? 'bg-red-100 hover:bg-red-200 text-red-600'
+                : 'bg-white/90 hover:bg-white text-gray-600'
             }`}
             onClick={handleSaveClick}
           >
-            <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
+            <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
           </Button>
         </div>
 
         <CardHeader className="mx-auto flex flex-col gap-y-4 items-center justify-center mt-8">
           <CardTitle className="text-2xl text-center">{recipe.name}</CardTitle>
-          <CardDescription className="text-center">{recipe.description}</CardDescription>
+          <CardDescription className="text-center">
+            {recipe.description}
+          </CardDescription>
           <div className="flex gap-x-4">
             <CardDescription className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
@@ -78,8 +98,12 @@ export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCard
         </CardContent>
 
         <div className="absolute bottom-3 right-3">
-          <Badge variant="outline" className="bg-white/90 text-gray-800 border-gray-300">
-            <RotateCcw className="w-3 h-3 mr-1" />Flip for directions
+          <Badge
+            variant="outline"
+            className="bg-white/90 text-gray-800 border-gray-300"
+          >
+            <RotateCcw className="w-3 h-3 mr-1" />
+            Flip for directions
           </Badge>
         </div>
       </Card>
@@ -88,9 +112,15 @@ export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCard
       <Card className="absolute inset-0 shadow-md mx-auto overflow-hidden backface-hidden rotate-y-180 w-full h-full">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-xl font-bold text-gray-900 uppercase">Directions</h2>
-            <Badge variant="outline" className="bg-white/90 text-gray-800 border-gray-300">
-              <ArrowLeft className="w-3 h-3 mr-1" />Flip back
+            <h2 className="text-xl font-bold text-gray-900 uppercase">
+              Directions
+            </h2>
+            <Badge
+              variant="outline"
+              className="bg-white/90 text-gray-800 border-gray-300"
+            >
+              <ArrowLeft className="w-3 h-3 mr-1" />
+              Flip back
             </Badge>
           </div>
           <div className="flex gap-x-4">
@@ -123,5 +153,5 @@ export default function RecipeCard({ recipe, isSaved, onSaveToggle }: RecipeCard
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-import { Resend } from "resend"
+import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
  * Sends a verification email with a confirmation link to the provided email address.
@@ -11,17 +11,16 @@ const resend = new Resend(process.env.RESEND_API_KEY)
  * The confirmation link directs the user to the frontend route where token validation occurs.
  */
 export const sendVerificationEmail = async (email: string, token: string) => {
-    // link to check whether token has expired or whether it exists, change to dynamic
-    const confirmLink = `http://localhost:3000/new-verification?token=${token}`
+  // link to check whether token has expired or whether it exists, change to dynamic
+  const confirmLink = `http://localhost:3000/new-verification?token=${token}`;
 
-
-    await resend.emails.send({
-        from: "onboarding@resend.dev",
-        to: email,
-        subject: "Confirm your email",
-        html: `<p>Click <a href="${confirmLink}">here</a> to confirm email.</p>`
-    })
-}
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: email,
+    subject: 'Confirm your email',
+    html: `<p>Click <a href="${confirmLink}">here</a> to confirm email.</p>`,
+  });
+};
 
 /**
  * Sends a password reset email with a secure link to the provided email address.
@@ -32,13 +31,12 @@ export const sendVerificationEmail = async (email: string, token: string) => {
  * The reset link allows the user to set a new password after verifying the token.
  */
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-    const resetLink = `http://localhost:3000/new-password?token=${token}`
+  const resetLink = `http://localhost:3000/new-password?token=${token}`;
 
-
-    await resend.emails.send({
-        from: "onboarding@resend.dev",
-        to: email,
-        subject: "Reset your password",
-        html: `<p>Click <a href="${resetLink}">here</a> to reset password.</p>`
-    })
-}
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: email,
+    subject: 'Reset your password',
+    html: `<p>Click <a href="${resetLink}">here</a> to reset password.</p>`,
+  });
+};

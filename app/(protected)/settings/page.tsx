@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useSession } from "next-auth/react";
-import { logout } from "@/actions/logout";
+import { useSession } from 'next-auth/react';
+import { logout } from '@/actions/logout';
 
 const Settings = () => {
   const { data: session } = useSession({ required: true });
 
   const onClick = () => {
     logout();
-  }
+  };
 
   return (
     <div>
@@ -17,7 +17,7 @@ const Settings = () => {
         Sign Out
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default Settings
+export default Settings;

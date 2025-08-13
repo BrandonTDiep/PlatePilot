@@ -1,14 +1,14 @@
-import Navbar from "@/components/navbar";
+import Navbar from '@/components/navbar';
 
-interface MainLayoutProps{
-    children: React.ReactNode
+interface MainLayoutProps {
+  children: React.ReactNode;
 }
 
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
     <div>
-        <Navbar />
-        {children}
+      <Navbar />
+      {children}
     </div>
-  )
+  );
 }

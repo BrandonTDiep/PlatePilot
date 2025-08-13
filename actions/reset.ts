@@ -1,9 +1,9 @@
-"use server"
-import * as z from "zod"
-import { ResetSchema } from "@/schemas"
-import { getUserByEmail } from "@/services/user"
-import { sendPasswordResetEmail } from "@/lib/mail"
-import { generatePasswordResetToken } from "@/lib/tokens"
+'use server';
+import * as z from 'zod';
+import { ResetSchema } from '@/schemas';
+import { getUserByEmail } from '@/services/user';
+import { sendPasswordResetEmail } from '@/lib/mail';
+import { generatePasswordResetToken } from '@/lib/tokens';
 
 /**
  * Handles password reset requests by validating input,
@@ -14,27 +14,26 @@ import { generatePasswordResetToken } from "@/lib/tokens"
  * @returns An object indicating success or an appropriate error message.
  */
 export const reset = async (values: z.infer<typeof ResetSchema>) => {
-    const validatedFields = ResetSchema.safeParse(values)
+  const validatedFields = ResetSchema.safeParse(values);
 
-    if(!validatedFields.success) {
-        return { error: "Invalid email!" }
-    }
+  if (!validatedFields.success) {
+    return { error: 'Invalid email!' };
+  }
 
-    const { email } = validatedFields.data
+  const { email } = validatedFields.data;
 
-    const existingUser = await getUserByEmail(email)
+  const existingUser = await getUserByEmail(email);
 
-    if(!existingUser) {
-        return { error: "Email not found!" }
-    }
+  if (!existingUser) {
+    return { error: 'Email not found!' };
+  }
 
-    const passwordResetToken = await generatePasswordResetToken(email)
+  const passwordResetToken = await generatePasswordResetToken(email);
 
-    await sendPasswordResetEmail(
-        passwordResetToken.email,
-        passwordResetToken.token
-    )
+  await sendPasswordResetEmail(
+    passwordResetToken.email,
+    passwordResetToken.token,
+  );
 
-
-    return { success: "Reset email sent" }
-}
+  return { success: 'Reset email sent' };
+};

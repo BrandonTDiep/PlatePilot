@@ -1,45 +1,43 @@
+import bcrypt from 'bcryptjs';
+import type { NextAuthConfig } from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import Github from 'next-auth/providers/github';
+import Google from 'next-auth/providers/google';
+import { LoginSchema } from './schemas';
+import { getUserByEmail } from './services/user';
 
-import bcrypt from "bcryptjs"
-import type { NextAuthConfig } from "next-auth"
-import Credentials from "next-auth/providers/credentials"
-import Github from "next-auth/providers/github"
-import Google from "next-auth/providers/google"
-import { LoginSchema } from "./schemas"
-import { getUserByEmail } from "./services/user"
- 
-export default { 
-    providers: [
-        Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET
-        }),
-        Github({
-            clientId: process.env.GITHUB_CLIENT_ID,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET
-        }),
-        Credentials({
-            async authorize(credentials){
-                const validatedFields = LoginSchema.safeParse(credentials)
+export default {
+  providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
+    Github({
+      clientId: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    }),
+    Credentials({
+      async authorize(credentials) {
+        const validatedFields = LoginSchema.safeParse(credentials);
 
-                if(validatedFields.success) {
-                    const { email, password } = validatedFields.data
-                    // check if email passed in the credentials provider is connected to any user in db
-                    const user = await getUserByEmail(email)
-                    
-                    // if user logs in with github or google
-                    if(!user || !user.password){
-                        return null
-                    }
+        if (validatedFields.success) {
+          const { email, password } = validatedFields.data;
+          // check if email passed in the credentials provider is connected to any user in db
+          const user = await getUserByEmail(email);
 
-                    const passwordsMatch = await bcrypt.compare(password, user.password)
+          // if user logs in with github or google
+          if (!user || !user.password) {
+            return null;
+          }
 
-                    if(passwordsMatch){
-                        return user
-                    }
-                }
-                return null
-            }
-        })
-    ] 
+          const passwordsMatch = await bcrypt.compare(password, user.password);
 
-} satisfies NextAuthConfig
+          if (passwordsMatch) {
+            return user;
+          }
+        }
+        return null;
+      },
+    }),
+  ],
+} satisfies NextAuthConfig;
