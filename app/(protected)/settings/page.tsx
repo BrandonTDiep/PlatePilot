@@ -4,10 +4,7 @@ import { useSession } from "next-auth/react";
 import { logout } from "@/actions/logout";
 
 const Settings = () => {
-  const { data: session, status } = useSession({ required: true });
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
+  const { data: session } = useSession({ required: true });
 
   const onClick = () => {
     logout();
@@ -15,7 +12,7 @@ const Settings = () => {
 
   return (
     <div>
-      {JSON.stringify(session.user)}
+      {JSON.stringify(session?.user)}
       <button onClick={onClick} type="submit">
         Sign Out
       </button>

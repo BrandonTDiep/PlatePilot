@@ -28,9 +28,9 @@ export const UserButton = () => {
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-40" align="start">
+      <DropdownMenuContent className="w-40" align="start" >
         <Link href="/settings">
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
                 <Settings className="h-8 w-8 mr-2" />
                 Settings
             </DropdownMenuItem>
@@ -39,7 +39,7 @@ export const UserButton = () => {
         <DropdownMenuSeparator />
 
         <LogoutButton>
-          <DropdownMenuItem>
+          <DropdownMenuItem className="cursor-pointer"> 
             <LogOut className="h-4 w-4 mr-2" />
             Logout
           </DropdownMenuItem>
