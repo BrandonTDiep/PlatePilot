@@ -1,13 +1,11 @@
 'use server';
-
+// note this action is not being used in the code snippets provided, but it is a server action for handling user login
 import * as z from 'zod';
 import { LoginSchema } from '@/schemas';
-import { signIn } from '@/auth';
-import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
-import { AuthError } from 'next-auth';
 import { generateVerificationToken } from '@/lib/tokens';
 import { sendVerificationEmail } from '@/lib/mail';
 import { getUserByEmail } from '@/services/user';
+import bcrypt from 'bcryptjs';
 
 /**
  * Handles user login with email and password.
@@ -51,24 +49,9 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     return { success: 'Confirmation email sent!' };
   }
 
-  try {
-    await signIn('credentials', {
-      email,
-      password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return { error: 'Invalid credentials!' };
-        default:
-          return { error: 'Something went wrong!' };
-      }
-    }
-    // add it so we redirect
-    throw error;
+  if (!(await bcrypt.compare(password, existingUser.password))) {
+    return { error: 'Invalid credentials!' };
   }
 
-  return { success: 'Login Sucess!' };
+  return { success: 'Login Success!' };
 };

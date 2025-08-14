@@ -31,11 +31,20 @@ const hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
         >
-          <Link href="/about" className="apple-button">
-            {' '}
+          <Link href="/generate" className="apple-button">
             Create Recipe
           </Link>
-          <a href="#" className="text-sm font-semibold leading-6">
+          <a
+            href="#how-it-works"
+            onClick={(e) => {
+              e.preventDefault();
+              document.querySelector('#how-it-works')?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+              });
+            }}
+            className="text-sm font-semibold leading-6"
+          >
             Learn how <span aria-hidden="true">→</span>
           </a>
         </motion.div>

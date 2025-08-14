@@ -42,6 +42,7 @@ export default function Timeline() {
 
   return (
     <section
+      id="how-it-works"
       ref={containerRef}
       className="relative py-20 bg-background overflow-hidden"
     >

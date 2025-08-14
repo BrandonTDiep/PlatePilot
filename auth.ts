@@ -3,11 +3,13 @@ import { PrismaAdapter } from '@auth/prisma-adapter';
 import { db } from './lib/db';
 import authConfig from './auth.config';
 import { getUserById } from './services/user';
+import { getAccountByUserId } from './services/account';
 import { UserRole } from '@prisma/client';
 
 // helps avoid .role type error
 export type ExtendedUser = DefaultSession['user'] & {
   role: UserRole;
+  isOAuth?: boolean; // custom field to check if user is authenticated via OAuth
 };
 
 declare module 'next-auth' {
@@ -66,6 +68,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as UserRole;
       }
 
+      if (session.user) {
+        session.user.name = token.name;
+        session.user.email = token.email ?? '';
+        session.user.isOAuth = token.isOAuth as boolean;
+      }
+
       return session;
     },
     // first it starts with the token
@@ -80,7 +88,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const existingUser = await getUserById(token.sub);
 
       if (!existingUser) return token;
+      // If the user has an account entry from Google/GitHub/etc., !!existingAccount becomes true.
+      const existingAccount = await getAccountByUserId(existingUser.id);
 
+      token.isOAuth = !!existingAccount;
+      token.name = existingUser.name;
+      token.email = existingUser.email;
       // add user role to token to be stored in 'role' field for session user
       token.role = existingUser.role;
 

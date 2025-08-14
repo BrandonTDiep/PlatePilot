@@ -21,9 +21,13 @@ import FormSuccess from '@/components/form-success';
 import { login } from '@/actions/login';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 
 const Login = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   // oauth error
   const urlError =
     searchParams.get('error') === 'OAuthAccountNotLinked'
@@ -48,9 +52,20 @@ const Login = () => {
     // lets the app stay interactive while waiting for non-urgent async updates to complete
     // lets us track the pending state to disable inputs
     startTransition(() => {
-      login(values).then((data) => {
+      login(values).then(async (data) => {
         setError(data.error);
         setSuccess(data.success);
+
+        // If server says “ok”, then actually sign in
+        const res = await signIn('credentials', {
+          redirect: false,
+          email: values.email,
+          password: values.password,
+        });
+
+        if (!res?.error) {
+          router.push(DEFAULT_LOGIN_REDIRECT);
+        }
       });
     });
   };
