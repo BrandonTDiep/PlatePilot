@@ -30,12 +30,10 @@ const Settings = () => {
   const { update } = useSession();
   const [isPending, startTransition] = useTransition();
 
-  console.log('Oauth?', user?.isOAuth);
-
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
-      password: undefined,
+      password: undefined, // not gonna fill because we don't have the user's password(only hash)
       newPassword: undefined,
       name: user?.name || undefined,
       email: user?.email || undefined,

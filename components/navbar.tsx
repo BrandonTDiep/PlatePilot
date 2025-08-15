@@ -7,17 +7,28 @@ import { useTheme } from 'next-themes';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { UserButton } from './auth/user-button';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { theme } = useTheme();
   const { user } = useCurrentUser();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  let callbackUrl = pathname;
+
+  if (searchParams.toString()) {
+    callbackUrl += '?${searchParams.toString()}';
+  }
+
+  const loginHref = `/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
 
   const navItems = [
     { name: 'Home', href: '/' },
     { name: 'Generate Recipes', href: '/generate' },
     { name: 'Saved Recipes', href: '/saved' },
-    !user ? { name: 'Login', href: '/login' } : { name: 'User', href: '' },
+    !user ? { name: 'Login', href: loginHref } : { name: 'User', href: '' },
   ];
 
   return (
