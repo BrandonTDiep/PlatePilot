@@ -56,8 +56,8 @@ const Settings = () => {
   };
 
   return (
-    <div className="flex items-center justify-center">
-      <Card className="w-[600px]">
+    <div className="flex items-center justify-center w-full max-w-2xl">
+      <Card className="w-full h-full p-6 mx-8">
         <CardHeader>
           <p className="text-2xl font-semibold text-center">⚙️ Settings</p>
         </CardHeader>
