@@ -21,7 +21,6 @@ interface Recipe {
 const Recipes = () => {
   const [ingredients, setIngredients] = useState('');
   const [recipe, setRecipe] = useState<Recipe | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -55,15 +54,12 @@ const Recipes = () => {
         throw new Error(data.error || 'Failed to save recipe');
       }
     } catch (error) {
-      alert('Failed to save recipe. Please try again.');
-    } finally {
-      setLoading(false);
+      alert(`Failed to save recipe. Please try again. ${error}`);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
     setRecipe(null);
     setIsSaved(false);
@@ -84,8 +80,6 @@ const Recipes = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
     }
   };
 

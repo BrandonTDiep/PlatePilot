@@ -29,7 +29,7 @@ const NewVerification = () => {
         setSuccess(data.success);
         setError(data.error);
       } catch (err) {
-        setError('Something went wrong!');
+        setError(`Something went wrong! ${err}`);
       }
     };
 
