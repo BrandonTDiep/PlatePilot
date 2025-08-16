@@ -13,7 +13,6 @@ import { currentUser } from '@/lib/auth';
  */
 export const deleteAccount = async () => {
   const user = await currentUser();
-  console.log('DETELE', user);
 
   if (!user) {
     return { error: 'Unauthorized!' };
