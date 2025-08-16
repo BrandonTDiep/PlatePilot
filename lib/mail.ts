@@ -1,7 +1,7 @@
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
-
+const domain = process.env.NEXT_PUBLIC_APP_URL;
 /**
  * Sends a verification email with a confirmation link to the provided email address.
  *
@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  */
 export const sendVerificationEmail = async (email: string, token: string) => {
   // link to check whether token has expired or whether it exists, change to dynamic
-  const confirmLink = `http://localhost:3000/new-verification?token=${token}`;
+  const confirmLink = `${domain}/new-verification?token=${token}`;
 
   await resend.emails.send({
     from: 'onboarding@resend.dev',
@@ -31,7 +31,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
  * The reset link allows the user to set a new password after verifying the token.
  */
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const resetLink = `http://localhost:3000/new-password?token=${token}`;
+  const resetLink = `${domain}/new-password?token=${token}`;
 
   await resend.emails.send({
     from: 'onboarding@resend.dev',

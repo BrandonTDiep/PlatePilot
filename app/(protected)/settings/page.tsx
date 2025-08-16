@@ -4,12 +4,23 @@ import * as z from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState, useTransition } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { SettingsSchema } from '@/schemas';
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { settings } from '@/actions/settings';
+import { deleteAccount } from '@/actions/delete-account';
 import {
   Form,
   FormField,
@@ -52,6 +63,19 @@ const Settings = () => {
           setSuccess(data.success);
         }
       });
+    });
+  };
+
+  const handleAccountDeletion = () => {
+    deleteAccount().then(async (data) => {
+      if (data.error) {
+        setError(data.error);
+      }
+
+      if (data.success) {
+        setSuccess(data.success);
+        await signOut();
+      }
     });
   };
 
@@ -144,9 +168,40 @@ const Settings = () => {
               </div>
               <FormError message={error} />
               <FormSuccess message={success} />
-              <Button disabled={isPending} type="submit">
-                Save
-              </Button>
+              <div className="flex justify-between">
+                <Button disabled={isPending} type="submit">
+                  Save
+                </Button>
+
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="destructive">
+                      Delete Account
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Delete Account</DialogTitle>
+                      <DialogDescription>
+                        Are you sure you want to delete your account? This
+                        action cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button
+                        onClick={handleAccountDeletion}
+                        type="button"
+                        variant="destructive"
+                      >
+                        Delete Account
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </form>
           </Form>
         </CardContent>
