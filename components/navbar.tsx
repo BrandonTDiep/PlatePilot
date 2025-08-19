@@ -41,28 +41,6 @@ export default function Navbar() {
     >
       <nav className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`}>
         <div className="flex items-center justify-between h-16">
-          <div>
-            <Link href="/" className="text-xl font-bold">
-              PlatePilot
-            </Link>
-          </div>
-
-          <div className="hidden md:flex  items-center space-x-4">
-            {navItems.map((nav) =>
-              nav.name === 'User' ? (
-                <UserButton key={nav.name} />
-              ) : (
-                <Link
-                  href={nav.href}
-                  key={nav.name}
-                  className="hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  {nav.name}
-                </Link>
-              ),
-            )}
-          </div>
-
           <div className="md:hidden">
             <button
               className="md:hidden transition-transform duration-300 hover:scale-110"
@@ -70,6 +48,41 @@ export default function Navbar() {
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
+          </div>
+
+          <div>
+            <Link href="/" className="text-xl font-bold">
+              PlatePilot
+            </Link>
+          </div>
+
+          <div className="md:hidden">
+            {!user ? (
+              <Link
+                href={loginHref}
+                className="hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Login
+              </Link>
+            ) : (
+              <UserButton />
+            )}
+          </div>
+
+          <div className="hidden md:flex items-center space-x-4">
+            {navItems.map((nav) =>
+              nav.name === 'User' ? (
+                <UserButton key={nav.name} />
+              ) : (
+                <Link
+                  href={nav.href}
+                  key={nav.name}
+                  className="hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium"
+                >
+                  {nav.name}
+                </Link>
+              ),
+            )}
           </div>
         </div>
 
@@ -83,18 +96,18 @@ export default function Navbar() {
               className={`md:hidden absolute top-full left-0 right-0 ${theme === 'light' ? 'bg-white' : 'bg-white'} shadow-md overflow-hidden py-4`}
             >
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col space-y-4">
-                {navItems.map((nav) =>
-                  nav.name === 'User' ? (
-                    <UserButton key={nav.name} />
-                  ) : (
-                    <Link
-                      href={nav.href}
-                      key={nav.name}
-                      className="hover:bg-white hover:bg-opacity-20 px-3 py-2 rounded-md text-sm font-medium"
-                    >
-                      {nav.name}
-                    </Link>
-                  ),
+                {navItems.map(
+                  (nav) =>
+                    nav.name !== 'Login' &&
+                    nav.name !== 'User' && (
+                      <Link
+                        href={nav.href}
+                        key={nav.name}
+                        className="hover:text-gray-600 px-3 py-2 rounded-md text-sm font-medium"
+                      >
+                        {nav.name}
+                      </Link>
+                    ),
                 )}
               </div>
             </motion.div>
