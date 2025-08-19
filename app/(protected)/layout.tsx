@@ -1,4 +1,5 @@
 import Navbar from '@/components/navbar';
+import Footer from '@/components/footer';
 
 interface ProtectedLayoutProps {
   children: React.ReactNode;
@@ -6,9 +7,12 @@ interface ProtectedLayoutProps {
 
 const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
   return (
-    <div className="h-full w-full flex flex-col gap-y-10 items-center justify-center">
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      {children}
+      <div className="h-full w-full flex flex-grow flex-col gap-y-10 items-center mt-16">
+        {children}
+      </div>
+      <Footer />
     </div>
   );
 };
