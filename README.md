@@ -57,8 +57,9 @@ To get a local copy up and running, follow these simple example steps.
 
 1. Create a `.env` in the root directory.
 2. Create a Supabase account, create a new project, and find the `.env` for Prisma ORM.
-3. Create a GitHub client id and client secret in your developer settings for OAuth.
-4. Create a new project in Google Cloud Console and get your OAuth client id and secret.
+3. Create a Resend account and generate an API key.
+4. Create a GitHub client id and client secret in your developer settings for OAuth.
+5. Create a new project in Google Cloud Console and get your OAuth client id and secret.
 
 ### Installation
 
@@ -83,8 +84,19 @@ To get a local copy up and running, follow these simple example steps.
    
 4. Enter your API keys in the root directory `.env`
    ```js
-   REACT_APP_API_URL = 'http://localhost:4000'
-   REACT_APP_SPOTIFY_CLIENT_ID='ENTER YOUR SPOTIFY CLIENT ID'
+   DATABASE_URL="postgresql://postgres.bohxmummrzqyfspqhepk:[YOUR-PASSWORD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DIRECT_URL="postgresql://postgres.bohxmummrzqyfspqhepk:[YOUR-PASSWORD]@aws-0-us-east-2.pooler.supabase.com:5432/postgres"
+   AUTH_SECRET="" # Added by `npx auth`. Read more: https://cli.authjs.dev
+   GITHUB_CLIENT_ID=""
+   GITHUB_CLIENT_SECRET=""
+   GOOGLE_CLIENT_ID=""
+   GOOGLE_CLIENT_SECRET=""
+   RESEND_API_KEY=""
+   NEXT_PUBLIC_APP_URL=""
+   MODEL=""
+   OPENAI_BASE_URL=""
+   OPENAI_API_KEY=""
+   OPENAI_PROMPT=""
    ```
 
 5. Run the application
@@ -97,7 +109,7 @@ To get a local copy up and running, follow these simple example steps.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[product-screenshot]: <img width="1905" height="775" alt="image" src="https://github.com/user-attachments/assets/39bacf49-c7b0-45d3-9072-8ed75dc3f293" />
+[product-screenshot]: public/images/image.png
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org
 [TypeScript]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square
