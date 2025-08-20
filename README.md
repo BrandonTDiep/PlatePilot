@@ -38,9 +38,10 @@ PlatePilot is an AI recipe generation application based on the user’s ingredie
 ### Built With
 
 
-* [![React][React.js]][React-url]
-* [![Express][Express.js]][Express-url]
-* [![Node][Node.js]][Node-url]
+* [![Next][Next.js]][Next-url]
+* [![TypeScript][TypeScript.js]][TypeScript-url]
+* [![Prisma][Prisma]][Prisma-url]
+* [![Supabase][Supabase]][Supabase-url]
 * [![TailwindCSS][Tailwind]][Tailwind-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -97,7 +98,7 @@ To get a local copy up and running, follow these simple example steps.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[product-screenshot]: <img width="1956" height="803" alt="image" src="https://github.com/user-attachments/assets/5b4bb6b3-9bc3-425e-9586-ea731996af76" />
+[product-screenshot]: <img width="1905" height="775" alt="image" src="https://github.com/user-attachments/assets/39bacf49-c7b0-45d3-9072-8ed75dc3f293" />
 [Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
 [Next-url]: https://nextjs.org
 [TypeScript]: https://shields.io/badge/TypeScript-3178C6?logo=TypeScript&logoColor=FFF&style=flat-square
