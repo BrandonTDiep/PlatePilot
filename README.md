@@ -25,7 +25,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://platepilot.vercel.app/)
+[![Product Name Screen Shot][product-screenshot]](https://platepilot.vercel.app)
 
 PlatePilot is an AI recipe generation application based on the user’s ingredients.
 
@@ -39,7 +39,7 @@ PlatePilot is an AI recipe generation application based on the user’s ingredie
 
 
 * [![Next][Next.js]][Next-url]
-* [![TypeScript][TypeScript.js]][TypeScript-url]
+* [![TypeScript][TypeScript]][TypeScript-url]
 * [![Prisma][Prisma]][Prisma-url]
 * [![Supabase][Supabase]][Supabase-url]
 * [![TailwindCSS][Tailwind]][Tailwind-url]
@@ -55,11 +55,10 @@ To get a local copy up and running, follow these simple example steps.
 
 ### Prerequisites
 
-1. Create a .env in the root directory.
-2. Create a Supabase account and create a new project
+1. Create a `.env` in the root directory.
+2. Create a Supabase account, create a new project, and find the `.env` for Prisma ORM.
 3. Create a GitHub client id and client secret in your developer settings for OAuth.
-4. Create a GitHub client id and client secret in your developer settings for OAuth.
-5. Create a new project in Google Cloud Console and get your OAuth client id and secret.
+4. Create a new project in Google Cloud Console and get your OAuth client id and secret.
 
 ### Installation
 
@@ -72,7 +71,7 @@ To get a local copy up and running, follow these simple example steps.
    npm install
    ```
 
-3. Create prisma schema and database URL in `.env`.
+3. Create a prisma schema and add the database URL and direct URL from your Supabase connection for Prisma ORM in `.env`
    ```sh
    npx prisma init
    # Connect to Supabase via connection pooling
