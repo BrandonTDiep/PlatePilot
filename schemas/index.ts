@@ -66,3 +66,51 @@ export const NewPasswordSchema = z.object({
     message: 'Minimum 8 characers required',
   }),
 });
+
+// LLM organizer plan schema
+export const OrganizerPlanSchema = z.object({
+  createFolders: z
+    .array(
+      z.object({
+        name: z.string().min(1),
+        description: z.string().optional().nullable(),
+        parentName: z.string().optional().nullable(),
+      }),
+    )
+    .default([]),
+  renameFolders: z
+    .array(
+      z.object({
+        from: z.string().min(1),
+        to: z.string().min(1),
+      }),
+    )
+    .default([]),
+  assignRecipes: z
+    .array(
+      z.object({
+        recipeId: z.string().min(1),
+        folderName: z.string().nullable(), // null removes from folder
+      }),
+    )
+    .default([]),
+});
+
+export type OrganizerPlan = z.infer<typeof OrganizerPlanSchema>;
+
+// Recipe schema used to validate LLM-generated recipes
+export const RecipeSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(1),
+  description: z.string().optional().nullable(),
+  prep_time: z.number().nonnegative(),
+  cook_time: z.number().nonnegative(),
+  total_time: z.number().nonnegative(),
+  servings: z.string().min(1),
+  ingredients: z
+    .array(z.object({ name: z.string().min(1), amount: z.string().min(1) }))
+    .default([]),
+  directions: z.array(z.string()).default([]),
+});
+
+export type Recipe = z.infer<typeof RecipeSchema>;

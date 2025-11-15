@@ -1,8 +1,11 @@
 import { auth } from '@/auth';
 import SavedRecipesClient from '@/components/recipes/SavedRecipesClient';
-import { redirect } from 'next/navigation';
+import { redirect, notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { getFoldersByUserId } from '@/services/folder';
+import {
+  getFoldersByUserId,
+  getFolderByName,
+} from '@/services/folder';
 
 interface Recipe {
   id: string;
@@ -16,27 +19,32 @@ interface Recipe {
   directions: string[];
 }
 
-const getSavedRecipes = async (userId: string) => {
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+const getSavedRecipes = async (userId: string, folderId?: string) => {
   const recipes = await db.recipe.findMany({
     where: {
       userId: userId,
+      ...(folderId && { folderId: folderId }),
     },
     orderBy: {
       createdAt: 'desc',
     },
   });
 
-  // 3) Transform each record into exactly the shape our Client Component expects
+  // Transform each record into exactly the shape our Client Component expects
   const savedRecipes: Recipe[] = recipes.map((r) => {
     // r.ingredients is typed as JsonValue by Prisma. We need to assert it's our array shape.
-    // If your data is stored correctly, this cast will work:
     const parsedIngredients = r.ingredients as {
       name: string;
       amount: string;
     }[];
 
     // r.directions should already be a string[], but Prisma types it as JsonValue too,
-    // so we cast it here:
     const parsedDirections = r.directions as string[];
 
     return {
@@ -54,7 +62,7 @@ const getSavedRecipes = async (userId: string) => {
   return savedRecipes;
 };
 
-export default async function SavedRecipes() {
+export default async function FolderRecipes({ params }: PageProps) {
   const session = await auth();
 
   if (!session || !session.user?.id) {
@@ -62,13 +70,32 @@ export default async function SavedRecipes() {
   }
 
   try {
+    // Decode the slug to get the folder name
+    const folderName = decodeURIComponent(params.slug);
+
+    // Find the folder by name for this user
+    const folder = await getFolderByName(folderName, session.user.id);
+
+    // If folder doesn't exist, show 404
+    if (!folder) {
+      notFound();
+    }
+
+    // Get recipes for this folder and all folders in parallel
     const [userRecipes, folders] = await Promise.all([
-      getSavedRecipes(session.user.id),
+      getSavedRecipes(session.user.id, folder.id),
       getFoldersByUserId(session.user.id),
     ]);
 
-    return <SavedRecipesClient recipes={userRecipes} folders={folders} />;
+    return (
+      <SavedRecipesClient
+        recipes={userRecipes}
+        folderName={folder.name}
+        folders={folders}
+      />
+    );
   } catch (error) {
     console.log(error);
+    notFound();
   }
 }

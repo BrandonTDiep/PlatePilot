@@ -25,6 +25,7 @@ model User {
   role          UserRole @default(USER)
   accounts      Account[]
   recipes       Recipe[]
+  folders       Folder[]
  
   @@map("users")
 }
@@ -67,6 +68,25 @@ model PasswordResetToken {
   @@unique([email, token])
 }
 
+model Folder {
+  id        String    @id @default(cuid())
+  name      String
+  description String?
+  userId    String    @map("user_id")
+  parentId  String?   @map("parent_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  // relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent   Folder?  @relation("FolderChildren", fields: [parentId], references: [id], onDelete: SetNull)
+  children Folder[] @relation("FolderChildren")
+  recipes  Recipe[]
+
+  @@map("folders")
+  @@index([userId])
+}
+
 model Recipe {
   id String @id 
   name String
@@ -78,11 +98,15 @@ model Recipe {
   ingredients Json
   directions String[]
   userId String  @map("user_id")
+  folderId String? @map("folder_id")
   createdAt   DateTime      @default(now()) @map("created_at")
   updatedAt   DateTime      @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  folder Folder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
 
   @@map("recipes")
+  @@index([userId])
+  @@index([folderId])
 }
 

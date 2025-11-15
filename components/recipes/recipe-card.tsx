@@ -7,6 +7,14 @@ import {
   CardContent,
   CardDescription,
 } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,14 +22,24 @@ import {
   RotateCcw,
   ArrowLeft,
   Heart,
+  Folder,
   Clock,
   Users,
   ChefHat,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { redirect } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import type { RecipeCardProps } from '@/types/recipe';
+
+interface Folder {
+  id: string;
+  name: string;
+  description: string | null;
+  _count?: {
+    recipes: number;
+  };
+}
 
 export default function RecipeCard({
   recipe,
@@ -31,6 +49,25 @@ export default function RecipeCard({
   const { user } = useCurrentUser();
 
   const [isFlipped, setIsFlipped] = useState(false);
+  const [folders, setFolders] = useState<Folder[]>([]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchFolders();
+    }
+  }, [user?.id]);
+
+  const fetchFolders = async () => {
+    try {
+      const res = await fetch('/api/folders');
+      const data = await res.json();
+      if (data.success) {
+        setFolders(data.folders);
+      }
+    } catch (error) {
+      console.error('Failed to fetch folders:', error);
+    }
+  };
 
   const handleFlip = () => setIsFlipped(!isFlipped);
 
@@ -42,6 +79,38 @@ export default function RecipeCard({
     onSaveToggle(recipe.id);
   };
 
+  const handleFolderClick = async (
+    e: React.MouseEvent,
+    folderId: string | null,
+  ) => {
+    e.stopPropagation();
+    if (!user?.id) {
+      redirect('/login');
+    }
+
+    try {
+      const res = await fetch('/api/recipes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recipeId: recipe.id,
+          folderId: folderId,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        // Optionally show a success message or update UI
+        // You could add a toast notification here
+      } else {
+        alert(data.error ?? 'Failed to add recipe to folder');
+      }
+    } catch {
+      alert('Failed to add recipe to folder. Please try again.');
+    }
+  };
+
   return (
     <div
       className={`relative w-full h-[600px] transition-transform duration-700 transform-style-preserve-3d cursor-pointer ${
@@ -51,7 +120,44 @@ export default function RecipeCard({
     >
       {/* Front Side */}
       <Card className="absolute inset-0 shadow-md overflow-hidden backface-hidden w-full h-full">
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-3 right-3 z-10 flex gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="rounded-full bg-card/90 p-2 shadow-md transition-colors hover:bg-card"
+                aria-label="Add to folder"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Folder className="h-4 w-4 text-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <DropdownMenuLabel>Add to Folder</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={(e) => handleFolderClick(e, null)}>
+                None (Remove from folder)
+              </DropdownMenuItem>
+              {folders.length > 0 && <DropdownMenuSeparator />}
+              {folders.map((folder) => (
+                <DropdownMenuItem
+                  key={folder.id}
+                  onClick={(e) => handleFolderClick(e, folder.id)}
+                >
+                  <Folder className="h-4 w-4 mr-2" />
+                  {folder.name}
+                  {folder._count && folder._count.recipes > 0 && (
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      ({folder._count.recipes})
+                    </span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             size="icon"
             variant="secondary"
