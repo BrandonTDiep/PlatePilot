@@ -101,29 +101,70 @@ export async function POST() {
       );
     }
 
-    // Post-process the plan to avoid creating folders that won't receive
-    // any recipes. Compute folder names referenced by assignments and only
-    // keep createFolders that are referenced. Also avoid recreating folders
-    // that already exist.
-    const referencedFolderNames = new Set<string>();
-    for (const ar of plan.assignRecipes) {
-      if (ar.folderName) referencedFolderNames.add(ar.folderName);
+    const normalizeName = (name?: string | null) => {
+      const trimmed = name?.trim();
+      return trimmed && trimmed.length > 0 ? trimmed : null;
+    };
+    const nameKey = (name: string) => name.toLowerCase();
+
+    const validRecipeIds = new Set(recipes.map((r) => r.id));
+
+    // Sanitize assignments: drop invalid recipes and normalize folder names
+    const sanitizedAssignments: OrganizerPlan['assignRecipes'] = [];
+    const referencedFolderKeys = new Set<string>();
+    for (const assignment of plan.assignRecipes) {
+      if (!validRecipeIds.has(assignment.recipeId)) continue;
+      const normalizedFolderName = normalizeName(assignment.folderName);
+      if (normalizedFolderName) {
+        referencedFolderKeys.add(nameKey(normalizedFolderName));
+      }
+      sanitizedAssignments.push({
+        recipeId: assignment.recipeId,
+        folderName: normalizedFolderName,
+      });
     }
+    plan.assignRecipes = sanitizedAssignments;
 
-    const existingFolderNames = new Set(folders.map((f) => f.name));
+    const existingFolderKeys = new Set(
+      folders.map((folder) => nameKey(folder.name)),
+    );
 
-    plan.createFolders = plan.createFolders.filter((cf) => {
-      if (!cf.name) return false;
-      if (existingFolderNames.has(cf.name)) return false; // don't recreate
-      return referencedFolderNames.has(cf.name);
-    });
+    // Drop create instructions for folders that won't receive recipes or already exist
+    const sanitizedCreateFolders: OrganizerPlan['createFolders'] = [];
+    for (const cf of plan.createFolders) {
+      const normalizedName = normalizeName(cf.name);
+      if (!normalizedName) continue;
+      const key = nameKey(normalizedName);
+      if (existingFolderKeys.has(key)) continue;
+      if (!referencedFolderKeys.has(key)) continue;
+      sanitizedCreateFolders.push({
+        ...cf,
+        name: normalizedName,
+        description: cf.description?.trim() ?? null,
+        parentName: normalizeName(cf.parentName),
+      });
+    }
+    plan.createFolders = sanitizedCreateFolders;
+
+    // Clean up rename instructions to avoid no-op or malformed renames
+    const sanitizedRenameFolders: OrganizerPlan['renameFolders'] = [];
+    for (const rf of plan.renameFolders) {
+      const from = normalizeName(rf.from);
+      const to = normalizeName(rf.to);
+      if (!from || !to || from === to) continue;
+      sanitizedRenameFolders.push({ from, to });
+    }
+    plan.renameFolders = sanitizedRenameFolders;
 
     // Apply the plan in a transaction
     const result = await db.$transaction(async (tx) => {
       // Helper: find folder by name for this user (case-insensitive)
       const findByName = async (name: string) => {
         return tx.folder.findFirst({
-          where: { userId: session.user!.id, name },
+          where: {
+            userId: session.user!.id,
+            name: { equals: name, mode: 'insensitive' },
+          },
         });
       };
 
@@ -159,12 +200,12 @@ export async function POST() {
       });
 
       const folderNameToId = new Map<string, string>();
-      for (const f of allFolders) folderNameToId.set(f.name, f.id);
+      for (const f of allFolders) folderNameToId.set(nameKey(f.name), f.id);
 
       // Assign recipes
       for (const ar of plan.assignRecipes) {
         const folderId = ar.folderName
-          ? folderNameToId.get(ar.folderName)
+          ? folderNameToId.get(nameKey(ar.folderName))
           : null;
         // Only update recipes that belong to the user
         await tx.recipe.updateMany({

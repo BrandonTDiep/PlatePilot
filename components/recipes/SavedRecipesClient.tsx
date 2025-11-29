@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FolderPlus, Folder, Trash2, ArrowLeft } from 'lucide-react';
+import { FolderPlus, Folder, Trash2, ArrowLeft, Loader2 } from 'lucide-react';
 import { Card } from '../ui/card';
 import type { FolderWithCount } from '@/services/folder';
 
@@ -60,6 +60,7 @@ const SavedRecipesClient = ({
   const [folders, setFolders] = useState<Folder[]>(initialFolders);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<Folder | null>(null);
+  const [isOrganizing, setIsOrganizing] = useState(false);
 
   // Update recipes when folderName changes (when navigating to folder view)
   useEffect(() => {
@@ -80,6 +81,27 @@ const SavedRecipesClient = ({
       }
     } catch {
       console.error('Failed to fetch folders');
+    }
+  };
+
+  const handleOrganizeFolders = async () => {
+    if (isOrganizing) return;
+    setIsOrganizing(true);
+    try {
+      const res = await fetch('/api/folders/organize', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchFolders();
+        router.refresh?.();
+      } else {
+        alert(data.error || 'Failed to organize folders');
+      }
+    } catch {
+      alert('Failed to organize folders. Please try again.');
+    } finally {
+      setIsOrganizing(false);
     }
   };
 
@@ -189,25 +211,19 @@ const SavedRecipesClient = ({
         <div className="flex items-center gap-2">
           <Button
             variant="secondary"
-            onClick={async () => {
-              try {
-                const res = await fetch('/api/folders/organize', {
-                  method: 'POST',
-                });
-                const data = await res.json();
-                if (data.success) {
-                  await fetchFolders();
-                  // Refresh current page to reflect server-side recipe filtering
-                  router.refresh?.();
-                } else {
-                  alert(data.error || 'Failed to organize folders');
-                }
-              } catch {
-                alert('Failed to organize folders. Please try again.');
-              }
-            }}
+            onClick={handleOrganizeFolders}
+            disabled={isOrganizing}
+            aria-busy={isOrganizing}
+            className="min-w-[180px]"
           >
-            Organize Folders
+            {isOrganizing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Organizing...
+              </>
+            ) : (
+              'Organize Folders'
+            )}
           </Button>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
