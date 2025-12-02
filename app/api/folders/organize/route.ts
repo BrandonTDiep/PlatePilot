@@ -41,7 +41,7 @@ export async function POST() {
 
     // Build a compact, deterministic prompt
     const baseSystemPrompt =
-      'You group recipes into consistent folders. Be deterministic and conservative. Only output JSON matching the provided schema. Use existing folder names when appropriate; otherwise propose new ones. Avoid duplicates.';
+      'You group recipes into consistent folders. Be deterministic and conservative. Only output JSON matching the provided schema. Use existing folder names when appropriate; otherwise propose new ones. Avoid duplicates. CRITICAL: Every recipe MUST be assigned to a folder - folderName must never be null. All recipes must be included in assignRecipes with a valid folderName.';
 
     // If user already has folders, prefer re-using them and avoid creating
     // new folders unless they will receive at least one recipe. This helps
@@ -75,7 +75,7 @@ export async function POST() {
         {
           role: 'user',
           content:
-            'Given the current folders and recipes, return an organization plan. Do not make empty folders with no recipes. JSON keys: createFolders [{name, description?, parentName?}], renameFolders [{from, to}], assignRecipes [{recipeId, folderName|null}].\nInput:' +
+            'Given the current folders and recipes, return an organization plan. Do not make empty folders with no recipes. CRITICAL: Every recipe must be assigned to a folder - folderName must never be null. All recipes must be included in assignRecipes. JSON keys: createFolders [{name, description?, parentName?}], renameFolders [{from, to}], assignRecipes [{recipeId, folderName}].\nInput:' +
             userContent,
         },
       ],
@@ -108,6 +108,7 @@ export async function POST() {
     const nameKey = (name: string) => name.toLowerCase();
 
     const validRecipeIds = new Set(recipes.map((r) => r.id));
+    const assignedRecipeIds = new Set<string>();
 
     // Sanitize assignments: drop invalid recipes and normalize folder names
     const sanitizedAssignments: OrganizerPlan['assignRecipes'] = [];
@@ -115,6 +116,7 @@ export async function POST() {
     for (const assignment of plan.assignRecipes) {
       if (!validRecipeIds.has(assignment.recipeId)) continue;
       const normalizedFolderName = normalizeName(assignment.folderName);
+      // If folderName is null or empty, we'll assign to a default folder later
       if (normalizedFolderName) {
         referencedFolderKeys.add(nameKey(normalizedFolderName));
       }
@@ -122,7 +124,52 @@ export async function POST() {
         recipeId: assignment.recipeId,
         folderName: normalizedFolderName,
       });
+      assignedRecipeIds.add(assignment.recipeId);
     }
+
+    // Ensure all recipes are assigned to a folder
+    // Find recipes that are missing or have null folderName
+    const unassignedRecipes = recipes.filter(
+      (r) => !assignedRecipeIds.has(r.id),
+    );
+    const recipesWithNullFolder = sanitizedAssignments.filter(
+      (a) => !a.folderName,
+    );
+
+    // Determine default folder name (use existing "Uncategorized" or "Other" if available, otherwise create one)
+    const defaultFolderName = 'Uncategorized';
+    const defaultFolderKey = nameKey(defaultFolderName);
+    const hasDefaultFolder =
+      folders.some((f) => nameKey(f.name) === defaultFolderKey) ||
+      plan.createFolders.some((cf) => nameKey(cf.name) === defaultFolderKey);
+
+    // Assign unassigned recipes to default folder
+    for (const recipe of unassignedRecipes) {
+      sanitizedAssignments.push({
+        recipeId: recipe.id,
+        folderName: defaultFolderName,
+      });
+      referencedFolderKeys.add(defaultFolderKey);
+    }
+
+    // Assign recipes with null folderName to default folder
+    for (const assignment of recipesWithNullFolder) {
+      assignment.folderName = defaultFolderName;
+      referencedFolderKeys.add(defaultFolderKey);
+    }
+
+    // Create default folder if needed and it doesn't exist
+    if (
+      (unassignedRecipes.length > 0 || recipesWithNullFolder.length > 0) &&
+      !hasDefaultFolder
+    ) {
+      plan.createFolders.push({
+        name: defaultFolderName,
+        description: null,
+        parentName: null,
+      });
+    }
+
     plan.assignRecipes = sanitizedAssignments;
 
     const existingFolderKeys = new Set(
