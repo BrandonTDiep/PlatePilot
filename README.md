@@ -76,10 +76,10 @@ To get a local copy up and running, follow these simple example steps.
    ```sh
    npx prisma init
    # Connect to Supabase via connection pooling
-   DATABASE_URL="postgresql://postgres.bohxmummrzqyfspqhepk:[YOUR-PASSWORD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+   DATABASE_URL=""
     
    # Direct connection to the database. Used for migrations
-   DIRECT_URL="postgresql://postgres.bohxmummrzqyfspqhepk:[YOUR-PASSWORD]@aws-0-us-east-2.pooler.supabase.com:5432/postgres"
+   DIRECT_URL=""
    ```
    
 4. Enter your API keys in the root directory `.env`
